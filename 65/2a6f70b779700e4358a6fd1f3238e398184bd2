@@ -1,0 +1,40 @@
+scripts/sync-wiki.sh
+  s_0e58cbbec07e19::t_277be626156ec7 17
+docs/testing.md
+  s_0e58cbbec07e19::t_277be626156ec7 274
+docs/requirements.md
+  s_0e58cbbec07e19::t_277be626156ec7 178
+docs/README.md
+  s_0e58cbbec07e19::t_277be626156ec7 46
+docs/detailed-design.md
+  s_0e58cbbec07e19::t_277be626156ec7 126,380
+.github/workflows/ansible-mac-update-mac-app-version.yml
+  s_0e58cbbec07e19::t_277be626156ec7 1
+docs/catalog.md
+  s_0e58cbbec07e19::t_277be626156ec7 265
+group_vars/all.yml
+  s_0e58cbbec07e19::t_277be626156ec7 118
+  s_0e58cbbec07e19::t_29e3b3a5365197 112
+roles/dotfiles/defaults/main.yml
+  s_0e58cbbec07e19::t_277be626156ec7 2
+README.md
+  s_0e58cbbec07e19::t_277be626156ec7 24-25,175
+docs/operations.md
+  s_0e58cbbec07e19::t_277be626156ec7 26-27,145,153,179,199,207
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "652a6f70b779700e4358a6fd1f3238e398184bd2",
+  "prompts": {},
+  "sessions": {
+    "s_0e58cbbec07e19": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e896e6f-aceb-478a-8fff-7f454c63688a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "jqit-yukiono <jqit.yuki.ono@gmail.com>"
+    }
+  }
+}
