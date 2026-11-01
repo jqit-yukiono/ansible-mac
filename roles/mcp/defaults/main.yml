@@ -22,7 +22,9 @@ mcp_servers:
       command: sh
       args:
         - "-c"
-        - 'set -a; . "$HOME/.secrets.env"; set +a; exec docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server'
+        - >-
+          set -a; . "$HOME/.secrets.env"; set +a;
+          exec docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server
       env: {}
 
   - name: serena
@@ -99,7 +101,9 @@ mcp_servers:
       command: sh
       args:
         - "-c"
-        - 'set -a; . "$HOME/.secrets.env"; MCP_MODE=stdio; LOG_LEVEL=error; DISABLE_CONSOLE_OUTPUT=true; set +a; exec npx -y n8n-mcp'
+        - >-
+          set -a; . "$HOME/.secrets.env"; MCP_MODE=stdio; LOG_LEVEL=error; DISABLE_CONSOLE_OUTPUT=true; set +a;
+          exec npx -y n8n-mcp
       env: {}
 
   - name: linksee
