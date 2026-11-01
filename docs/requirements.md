@@ -175,7 +175,7 @@
 | formula / cask / tap | Homebrew の CLI パッケージ / GUI アプリ / 追加のリポジトリ |
 | MAS | Mac App Store。`mas` はその CLI |
 | askpass | `sudo -A` がパスワードを得るためのヘルパプログラム。`SUDO_ASKPASS` で指定する |
-| dotfiles | 設定ファイルを管理する別リポジトリ（`YukiOno-1015/dotfiles`） |
+| dotfiles | 設定ファイルを管理する別リポジトリ（`jqit-yukiono/dotfiles`） |
 | Vault | HashiCorp Vault。SSH / AWS の認証情報と `~/.secrets.env` の保管先 |
 | Nexus | 社内のアーティファクトリポジトリ。`raw-tools` に Pleiades / FileZilla を置く |
 | Mirror Pipeline | Jenkins のジョブ（別リポジトリ `jenkins-cli`）。配布元の新版を Nexus に複製し、通知を送る |
