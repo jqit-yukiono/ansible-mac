@@ -1,0 +1,21 @@
+docs/testing.md
+  s_11a488bc34dcd5::t_cb822b633b634a 336-337
+docs/basic-design.md
+  s_11a488bc34dcd5::t_1893159b4da85c 445-451
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a55a6cc77bca4ba9dca1547b8bce78bb8706ac8d",
+  "prompts": {},
+  "sessions": {
+    "s_11a488bc34dcd5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "63804f42-1fa0-4fef-ade7-9a8737fd7d5e",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "jqit-yukiono <jqit.yuki.ono@gmail.com>"
+    }
+  }
+}
