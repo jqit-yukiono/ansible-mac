@@ -20,7 +20,6 @@
 | [KI-03](#ki-03-部分実行ターゲットがプロファイルを引き継がない) | 高 | 部分実行ターゲットがプロファイルを引き継がない |
 | [KI-14](#ki-14-dock-の-tilesize-が-float-だと-macos-role-が失敗する) | 高 | Dock の `tilesize` が float だと `macos` role が失敗する |
 | [KI-04](#ki-04-make-xcode-が何もしないmake-mcp-がない) | 中 | `make xcode` が何もしない / `make mcp` がない |
-| [KI-05](#ki-05-main-に保護がない) | 中 | `main` に保護がなく、CI が必須チェックになっていない |
 | [KI-06](#ki-06-mas-get-が常に-changed-になりsudo-要求を握りつぶす) | 中 | `mas get` が常に changed になり、sudo 要求を握りつぶす |
 | [KI-07](#ki-07-gitconfig-が二重管理になっている) | 中 | `~/.gitconfig` が二重管理になっている |
 | [KI-08](#ki-08-dev-では-secretsenv-が自動配置されない) | 中 | `dev` では `~/.secrets.env` が自動配置されない |
@@ -77,16 +76,6 @@
 | 原因 | コミット `07da4e8` で `xcode:` のレシピが削除されたが、`.PHONY`、`help`、README の記載が残った。`mcp` role は後から追加され、ターゲットが作られていない |
 | 回避 | `ansible-playbook site.yml --tags xcode -e @vars/dev.yml`<br/>`ansible-playbook site.yml --tags mcp` |
 | 対応案 | ターゲットを復活させる、または記載を削除する |
-
-## KI-05 `main` に保護がない
-
-| 項目 | 内容 |
-| --- | --- |
-| 事象 | `main` にブランチ保護も ruleset もなく、CI は必須チェックになっていない（2026-10-24 時点） |
-| 影響 | CI が失敗していても、マージできてしまう。直接 push も防げない |
-| 経緯 | `ansible-lint` の `yaml[line-length]` 3 件で CI が赤い状態が続いていたため、必須にできなかった。PR #16（2026-11-03）で解消し、CI は緑になった |
-| 対応案 | `main` を PR 必須にし、`Format, Indent, Static Check` を必須チェックにする。設定には admin 権限が要る（2026-11-03 時点で、作業に使っているアカウントは `push` まで） |
-| 注意 | `Validate Wiki pages` は `docs/` などを変えた PR でしか動かないため、必須にすると他の PR がマージできなくなる。必須にしない |
 
 ## KI-06 `mas get` が常に changed になり、sudo 要求を握りつぶす
 

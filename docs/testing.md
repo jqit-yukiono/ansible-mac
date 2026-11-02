@@ -333,7 +333,8 @@ mkdir -p /tmp/wiki-check && scripts/sync-wiki.sh /tmp/wiki-check
 | `--check` で非空パスワードを渡して `homebrew` | askpass の書き込みで失敗（KI-02） |
 | `--check` で空パスワードを渡して `macos`（`/etc/hosts`） | `sudo: a password is required` で失敗（KI-02） |
 | 更新ワークフローの実行履歴（`RELEASE_PAT` の登録前） | 4 件（2026-07-15、2026-08-19、2026-08-26、2026-10-16）すべて失敗。後の 2 件はログで `Input required and not supplied: token` を確認。`RELEASE_PAT` が未登録だった |
-| `main` のブランチ保護 | なし（ruleset もなし） |
+| `main` のブランチ保護（2026-10-24） | なし（ruleset もなし）。2026-11-03 に設定した（`basic-design.md` の 8.3） |
+| `main` のブランチ保護の設定内容（API の応答） | 必須チェックは `Format, Indent, Static Check`、承認数 0、管理者には強制しない、force push と削除は禁止 |
 | `scripts/sync-wiki.sh` を、Wiki の複製に実行（macOS） | 11 ページを生成。元の `docs/` との差分は、リンクの宛先の変換とマーカー行だけ。2 回目は差分なし。マーカー付きの孤立ページは削除され、手書きのページは残る。リンク切れを混ぜると、何も書かずに終了コード 1 |
 | `sync-wiki.yml` の `run:` を、ローカルの bare リポジトリに実行 | clone・commit・push、差分なし時のスキップ、clone 失敗時のエラー表示を確認 |
 | `yamllint` / `actionlint`（`sync-wiki.yml`）、`shfmt`（`sync-wiki.sh`） | 指摘なし |
