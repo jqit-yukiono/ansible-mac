@@ -19,7 +19,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # ansible-core does not support Python 3.15 yet ("3.x" resolves to it)
           python-version: "3.13"
 
       - name: Set up Go
