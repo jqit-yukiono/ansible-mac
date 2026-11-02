@@ -104,7 +104,8 @@ jobs:
                 echo "changed=true"
                 echo "branch=auto/pleiades-${PLEIADES_RELEASE}-${PLEIADES_BUILD_DATE}"
                 echo "title=chore: pleiades を ${PLEIADES_RELEASE} (${PLEIADES_BUILD_DATE}) に更新"
-                echo "summary=Pleiades を ${CUR_REL:-(未設定)} (${CUR_BD:-(未設定)}) から ${PLEIADES_RELEASE} (${PLEIADES_BUILD_DATE}) に自動更新"
+                echo "summary=Pleiades を ${CUR_REL:-(未設定)} (${CUR_BD:-(未設定)})" \
+                  "から ${PLEIADES_RELEASE} (${PLEIADES_BUILD_DATE}) に自動更新"
               } >> "$GITHUB_OUTPUT"
               ;;
 
