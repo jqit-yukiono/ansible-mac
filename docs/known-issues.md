@@ -20,7 +20,7 @@
 | [KI-03](#ki-03-部分実行ターゲットがプロファイルを引き継がない) | 高 | 部分実行ターゲットがプロファイルを引き継がない |
 | [KI-14](#ki-14-dock-の-tilesize-が-float-だと-macos-role-が失敗する) | 高 | Dock の `tilesize` が float だと `macos` role が失敗する |
 | [KI-04](#ki-04-make-xcode-が何もしないmake-mcp-がない) | 中 | `make xcode` が何もしない / `make mcp` がない |
-| [KI-05](#ki-05-ci-の-ansible-lint-が赤main-に保護がない) | 中 | CI の ansible-lint が赤、`main` に保護がない |
+| [KI-05](#ki-05-main-に保護がない) | 中 | `main` に保護がなく、CI が必須チェックになっていない |
 | [KI-06](#ki-06-mas-get-が常に-changed-になりsudo-要求を握りつぶす) | 中 | `mas get` が常に changed になり、sudo 要求を握りつぶす |
 | [KI-07](#ki-07-gitconfig-が二重管理になっている) | 中 | `~/.gitconfig` が二重管理になっている |
 | [KI-08](#ki-08-dev-では-secretsenv-が自動配置されない) | 中 | `dev` では `~/.secrets.env` が自動配置されない |
@@ -78,15 +78,14 @@
 | 回避 | `ansible-playbook site.yml --tags xcode -e @vars/dev.yml`<br/>`ansible-playbook site.yml --tags mcp` |
 | 対応案 | ターゲットを復活させる、または記載を削除する |
 
-## KI-05 CI の ansible-lint が赤、`main` に保護がない
+## KI-05 `main` に保護がない
 
 | 項目 | 内容 |
 | --- | --- |
-| 事象 | `ansible-lint` が `yaml[line-length]`（120 文字超）3 件で失敗し続けている |
-| 違反箇所 | `roles/mcp/defaults/main.yml` の 25 行目（140 文字）と 102 行目（133 文字）、`.github/workflows/ansible-mac-update-mac-app-version.yml` の 107 行目（132 文字） |
-| 原因 | `.yamllint` は行長を warning にしているが、`ansible-lint` の `basic` プロファイルは同じ違反をエラーにする。`mcp` role の追加（PR #5）以降ずっと赤 |
-| 影響 | `main` の CI が常に赤で、新しい違反が埋もれる。`main` にブランチ保護も ruleset もなく、CI は必須チェックになっていない（2026-10-24 時点） |
-| 対応案 | 長い行を折り返す。または `.ansible-lint` の `warn_list` に `yaml[line-length]` を加える。そのうえで CI を必須チェックにする |
+| 事象 | `main` にブランチ保護も ruleset もなく、CI は必須チェックになっていない（2026-10-24 時点） |
+| 影響 | CI が失敗していても、マージできてしまう。直接 push も防げない |
+| 経緯 | `ansible-lint` の `yaml[line-length]` 3 件で CI が赤い状態が続いていたため、必須にできなかった。PR #16（2026-11-03）で解消し、CI は緑になった |
+| 対応案 | `main` を PR 必須にし、`Format, Indent, Static Check` と `Validate Wiki pages` を必須チェックにする |
 
 ## KI-06 `mas get` が常に changed になり、sudo 要求を握りつぶす
 

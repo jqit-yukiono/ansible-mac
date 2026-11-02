@@ -13,7 +13,7 @@ CI は Ubuntu 上で動くため、**実機での適用は CI では検証され
 
 | 層 | 内容 | 実行 | 現状 |
 | --- | --- | --- | --- |
-| 1. 静的検査 | 書式・lint・構文 | CI（自動）とローカル | `ansible-lint` が既知の 3 件で失敗（KI-05） |
+| 1. 静的検査 | 書式・lint・構文 | CI（自動）とローカル | すべて通る（2026-11-03、PR #16） |
 | 2. ドライラン | `--check` による事前確認 | 手動 | 全体では完走しない。role 単位なら使える（KI-02） |
 | 3. 実機検証 | 実際に適用して結果を確認 | 手動 | テストケースを 4 章に定義 |
 
@@ -25,9 +25,9 @@ CI と同じ検査をローカルで再現できます。
 
 | ID | 検査 | コマンド | 期待結果 | 現状 |
 | --- | --- | --- | --- | --- |
-| TC-01 | YAML の書式・インデント | `yamllint .` | 終了コード 0（行長の warning は許容） | warning 3 件（行長） |
+| TC-01 | YAML の書式・インデント | `yamllint .` | 終了コード 0（行長の warning は許容） | 通る（警告なし） |
 | TC-02 | シェルの書式 | `shfmt -d -i 2 -ci scripts/import-app-settings.sh` | 差分なし | 通る |
-| TC-03 | Ansible の静的検査 | `ansible-lint` | 違反なし | **3 件で失敗**（`yaml[line-length]`、KI-05） |
+| TC-03 | Ansible の静的検査 | `ansible-lint` | 違反なし | 通る（PR #16 で `yaml[line-length]` 3 件を解消） |
 | TC-04 | Playbook の構文 | `ansible-playbook site.yml --syntax-check -e @vars/dev.yml`（`personal` も） | エラーなし | 通る |
 
 CI は TC-04 をプロファイルなしで実行します。ローカルでは両プロファイルで確認してください。
@@ -347,6 +347,8 @@ mkdir -p /tmp/wiki-check && scripts/sync-wiki.sh /tmp/wiki-check
 | `gh secret list`（オーナーが `RELEASE_PAT` を登録し、`WIKI_TOKEN` を削除した後） | `RELEASE_PAT` のみ |
 | テスト用 dispatch `update-filezilla`（取り残されていた更新の反映を兼ねる。Nexus に該当ファイルがあることを `curl -sfI` で確認してから実行） | 成功（8 秒）。`auto/filezilla-<version>` の PR #12 が作られ、差分は `group_vars/all.yml` の 1 行だけ。PR の CI が起動した |
 | テスト用 dispatch `update-pleiades`（同上） | 成功（10 秒）。`auto/pleiades-<release>-<buildDate>` の PR #13 が作られ、差分は `group_vars/all.yml` の 2 行だけ。PR の CI が起動した |
-| PR #12・#13 の `ansible-lint` | 既知の 3 件（KI-05）で失敗。違反箇所は変わらず、新しい違反はない |
+| PR #12・#13 の `ansible-lint` | 解消前の既知の 3 件で失敗。違反箇所は変わらず、新しい違反はない |
+| PR #16 の CI（1 回目） | **失敗**。`Install Ansible collections` で `AttributeError: module 'dataclasses' has no attribute '_is_type'`。`setup-python` の `3.x` が Python 3.15.1 に解決され、ansible-core が起動できない。`main` でも同じ |
+| PR #16 の CI（`python-version` を `3.13` に固定） | 成功。`yamllint`、`shfmt`、`ansible-lint`、構文チェックがすべて通った |
 
 新規の Mac での通し実行（`make init` → `make dev` / `make personal`）は、この時点では実施していません。

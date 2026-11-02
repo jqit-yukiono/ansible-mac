@@ -150,7 +150,7 @@ GitHub Actions（`pull_request` と `main` への push）で、次のチェッ�
 | --- | --- |
 | `yamllint` | YAML のフォーマット・インデントチェック |
 | `shfmt` | Shell スクリプトのフォーマットチェック |
-| `ansible-lint` | Ansible の静的チェック（現状は既知の 3 件で失敗。[KI-05](docs/known-issues.md)） |
+| `ansible-lint` | Ansible の静的チェック |
 | `ansible-playbook --syntax-check` | Playbook の構文チェック |
 
 別に、Pleiades / FileZilla の新版を `group_vars/all.yml` に反映する PR を自動作成するワークフローがあります

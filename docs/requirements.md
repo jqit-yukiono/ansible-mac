@@ -150,7 +150,7 @@
 | AC-02 | 同様に `make init` と `make personal` が完了し、`personal` の導入物が揃う | 未検証 |
 | AC-03 | 同じコマンドを再実行しても、破壊的な変更がなく、changed が想定の範囲に収まる | 未検証 |
 | AC-04 | `make check-dev` / `make check-personal` が完走する | **未達**（KI-02、KI-14） |
-| AC-05 | CI の静的検査がすべて通る | **未達**。`ansible-lint` が 3 件で失敗（KI-05）。`yamllint`（warning のみ）と `--syntax-check` は通る |
+| AC-05 | CI の静的検査がすべて通る | 達成。PR #16（2026-11-03）で `ansible-lint` の 3 件を解消し、CI がすべて通った |
 | AC-06 | 秘密情報がログ・リポジトリ・設定ファイルに残らない | 設計上は満たす。中断時に askpass の一時ファイルが残る余地がある（KI-10） |
 | AC-07 | 新版の通知から追従 PR の作成までが自動で行われる | 達成。`RELEASE_PAT` の登録後（2026-10-24）、テスト用 dispatch で追従 PR が作られ、CI も起動した。登録後に Jenkins が送った実例は、まだない |
 | AC-08 | `docs/` の変更が、`main` へのマージ後に Wiki へ自動で反映される | 達成。初回の同期（2026-10-24）で、`GITHUB_TOKEN` だけで書き込めることを確認した |
