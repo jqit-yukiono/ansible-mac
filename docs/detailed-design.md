@@ -412,7 +412,7 @@ Markdown リンクの宛先は、次のとおり変換します（`rewrite_links
 [basic-design.md](basic-design.md) の 8.1 を参照してください。ステップは次のとおりです。
 
 1. `actions/checkout@v4`
-2. `actions/setup-python@v5`（`3.x`）、`actions/setup-go@v5`（`stable`）
+2. `actions/setup-python@v5`（`3.13`。`3.x` では 3.15 に解決され、ansible-core が起動時に落ちたため固定）、`actions/setup-go@v5`（`stable`）
 3. `pip install ansible ansible-lint yamllint`、`go install mvdan.cc/sh/v3/cmd/shfmt@latest`
 4. `ansible-galaxy collection install -r requirements.yml`
 5. `yamllint .`
@@ -474,7 +474,7 @@ PR 本文には、イベント種別・概要・発火元の Jenkins（`client_p
 | `.yamllint` | `extends: default`。`document-start: enable`、行長 120 は `warning`、`braces` の内側スペースは最大 1、コメントは内容から 1 スペース以上離す、`comments-indentation` は無効、8 進数表記（暗黙・明示とも）を禁止、`truthy` は `.github/workflows/*` で無視 |
 | `.ansible-lint` | `profile: basic`。`ignore-errors` と `risky-shell-pipe` を除外 |
 
-`yamllint` では行長が warning ですが、`ansible-lint` は同じ違反を `yaml[line-length]` のエラーとして扱います（KI-05）。
+`yamllint` では行長が warning ですが、`ansible-lint` は同じ違反を `yaml[line-length]` のエラーとして扱います。そのため、120 文字を超える行は折り返します。
 
 ### 7.2 既存コードの流儀
 

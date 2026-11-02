@@ -126,7 +126,7 @@ ansible-playbook site.yml --check --tags git -e @vars/dev.yml -e ansible_become_
 - **追加**: `roles/mcp/defaults/main.yml` の `mcp_servers` に `name` と `config` を足し、`ansible-playbook site.yml --tags mcp` を実行します。
   トークンはコマンドに書かず、`sh -c 'set -a; . "$HOME/.secrets.env"; set +a; exec ...'` の形で実行時に読み込ませます
 - **変更**: 登録済みのサーバは更新されません。`claude mcp remove <name> --scope user` で削除してから、再実行します
-- 行長が 120 文字を超えると `ansible-lint` が失敗します（KI-05）。長いコマンドは折り返します
+- 行長が 120 文字を超えると `ansible-lint` が失敗します。長いコマンドは折り返します（YAML の複数行のクォート文字列や、シェルの `\` が使えます）
 
 ### 3.6 アプリ設定を dotfiles に取り込む
 
@@ -221,7 +221,7 @@ echo '{"event_type":"update-pleiades","client_payload":{"release":"<リリース
    ```
 
 3. コミットメッセージは `<type>: <日本語の説明>` にします（`feat` / `fix` / `chore` / `docs` / `refactor` / `test` / `style` / `perf`）
-4. push して PR を作ります。CI の結果を確認します。ansible-lint は既知の 3 件で失敗します（KI-05）。それ以外の新しい違反がないことを見てください
+4. push して PR を作ります。CI の結果を確認します。すべて通ることを見てください
 5. squash マージします
 6. 設計に関わる変更なら、[docs/README.md](README.md) の「更新ルール」に従って文書も更新します
 
@@ -245,7 +245,7 @@ echo '{"event_type":"update-pleiades","client_payload":{"release":"<リリース
 | `claude CLI が見つからないため MCP 登録をスキップします` | `claude-code` cask が未導入、または PATH にない | `homebrew` を実行して導入し、新しいシェルで `mcp` を再実行する |
 | MCP サーバが認証エラー、または起動しない | `~/.secrets.env` がない（KI-08）、または Docker がない（KI-09） | 2.2 の手順で復元する。`claude mcp list` で状態を見る |
 | MCP の定義を変えたのに反映されない | 登録済みは更新しない仕様 | `claude mcp remove <name> --scope user` の後に再実行する |
-| CI が赤い | 既知の `yaml[line-length]` 3 件（KI-05） | ログで違反箇所が 3 件のままか確認する。増えていれば新しい違反 |
+| CI が赤い | 新しい lint 違反、または CI の環境の変化 | ログで違反箇所を確認する。`Install Ansible collections` で Python の `AttributeError` が出る場合は、`ci.yml` の `python-version` が ansible-core の未対応の版に解決されている。対応する版に固定する（現在は `3.13`） |
 | 更新ワークフローが失敗する。未登録のときは `Input required and not supplied: token` | `RELEASE_PAT` が未登録、または失効している | 4.1 の手順で登録・更新する。取り残された更新は、4.3 の dispatch で最新の版を指定して反映する（失敗した実行の再実行は、30 日を過ぎるとできない） |
 | 中断した後、`ansible.*askpass` というディレクトリが残っている | クリーンアップされなかった（KI-10） | `ls -d "${TMPDIR%/}"/ansible.*askpass` で確認し、内容を見て削除する |
 | `Sync docs to Wiki` が `Wiki を clone できません` で失敗 | Wiki の最初のページが未作成、または `GITHUB_TOKEN` の権限が足りない | Web 画面で Wiki の最初のページを作る。`Permission ... denied`（403）のときは、ワークフローの `permissions: contents: write` と、リポジトリの Settings にある Actions の Workflow permissions を確認する |

@@ -442,8 +442,8 @@ Jenkins には伝わりません。`RELEASE_PAT` が未登録の間は毎回失�
 
 ### 8.3 品質ゲートの現状
 
-`main` にブランチ保護と ruleset はなく、CI は必須チェックになっていません（2026-10-24 時点）。
-ansible-lint は既知の 3 件の違反で失敗し続けています（[known-issues.md](known-issues.md) の KI-05）。
+`main` にブランチ保護と ruleset はなく、CI は必須チェックになっていません（2026-10-24 時点。[known-issues.md](known-issues.md) の KI-05）。
+CI（`yamllint`、`shfmt`、`ansible-lint`、構文チェック）は、すべて通っています（2026-11-03 時点）。
 
 ### 8.4 Wiki ミラー
 
