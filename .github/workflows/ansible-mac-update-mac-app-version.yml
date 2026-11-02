@@ -1,4 +1,4 @@
-# YukiOno-1015/jenkins-cli の Mirror Pipeline 完了時に送られる
+# jqit-yukiono/jenkins-cli の Mirror Pipeline 完了時に送られる
 # repository_dispatch を受け、group_vars/all.yml の
 # filezilla_version / pleiades_release / pleiades_version を更新する PR を作成する。
 #

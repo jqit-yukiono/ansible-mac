@@ -43,7 +43,7 @@ flowchart LR
 
 ## GitHub Wiki
 
-`docs/` は [GitHub Wiki](https://github.com/YukiOno-1015/ansible-mac/wiki) にも自動で反映されます。**正本は `docs/` で、反映は一方向**です。Wiki 上で編集しても、次の同期で上書きされます。
+`docs/` は [GitHub Wiki](https://github.com/jqit-yukiono/ansible-mac/wiki) にも自動で反映されます。**正本は `docs/` で、反映は一方向**です。Wiki 上で編集しても、次の同期で上書きされます。
 
 - `docs/` の変更を `main` にマージすると、ワークフロー `Sync docs to Wiki` が Wiki を更新します
 - `docs/README.md` が Wiki の `Home` に、それ以外は同じ名前のページになります。サイドバーとフッターは自動で生成します

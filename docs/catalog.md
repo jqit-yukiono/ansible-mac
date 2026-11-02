@@ -262,7 +262,7 @@ VIP の値は `roles/macos/defaults/main.yml` を参照してください。
 
 | 変数 | 既定値 | 備考 |
 | --- | --- | --- |
-| `dotfiles_repo` | `https://github.com/YukiOno-1015/dotfiles.git` | |
+| `dotfiles_repo` | `https://github.com/jqit-yukiono/dotfiles.git` | |
 | `dotfiles_dest` | `~/dotfiles` | |
 | `dotfiles_version` | `main` | ブランチ / タグ / コミット |
 | `dotfiles_update` | `true` | 既存 clone を更新する |

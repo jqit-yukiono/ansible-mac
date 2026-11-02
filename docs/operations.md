@@ -23,8 +23,8 @@
 1. リポジトリを取得します。
 
    ```bash
-   git clone git@github.com:YukiOno-1015/ansible-mac.git    # SSH
-   # git clone https://github.com/YukiOno-1015/ansible-mac.git  # HTTPS
+   git clone git@github.com:jqit-yukiono/ansible-mac.git    # SSH
+   # git clone https://github.com/jqit-yukiono/ansible-mac.git  # HTTPS
    cd ansible-mac
    ```
 
@@ -142,7 +142,7 @@ git status && git diff # 秘密情報が含まれていないことを確認
 
 ### 3.7 Wiki への反映
 
-`docs/` の変更を `main` にマージすると、ワークフロー `Sync docs to Wiki` が [Wiki](https://github.com/YukiOno-1015/ansible-mac/wiki) を自動で更新します。
+`docs/` の変更を `main` にマージすると、ワークフロー `Sync docs to Wiki` が [Wiki](https://github.com/jqit-yukiono/ansible-mac/wiki) を自動で更新します。
 **Wiki 上の編集は次の同期で上書きされる**ため、文書の修正は `docs/` に対して行ってください。
 
 - **確認**: Actions タブで `Sync docs to Wiki` の結果を見る。PR では `Validate Wiki pages` が、変換とリンクを検査する
@@ -150,7 +150,7 @@ git status && git diff # 秘密情報が含まれていないことを確認
 - **ローカルで試す**: 空のディレクトリへ出力して、変換結果とリンク検査を確認する（Wiki には書かない）
 
 ```bash
-gh workflow run sync-wiki.yml --repo YukiOno-1015/ansible-mac    # 手動で反映
+gh workflow run sync-wiki.yml --repo jqit-yukiono/ansible-mac    # 手動で反映
 mkdir -p /tmp/wiki-check && scripts/sync-wiki.sh /tmp/wiki-check   # ローカルで試す
 ```
 
@@ -176,7 +176,7 @@ mkdir -p /tmp/wiki-check && scripts/sync-wiki.sh /tmp/wiki-check   # ローカ�
 登録と更新は、次のコマンドで行います。値は対話プロンプトに貼り付け、コマンドラインや会話には書きません。
 
 ```bash
-gh secret set RELEASE_PAT --repo YukiOno-1015/ansible-mac
+gh secret set RELEASE_PAT --repo jqit-yukiono/ansible-mac
 ```
 
 ### 4.2 手動
@@ -196,7 +196,7 @@ gh secret set RELEASE_PAT --repo YukiOno-1015/ansible-mac
 
 ```bash
 echo '{"event_type":"update-filezilla","client_payload":{"version":"<現在と異なる版>","jenkins":"manual-test"}}' \
-  | gh api repos/YukiOno-1015/ansible-mac/dispatches --input -
+  | gh api repos/jqit-yukiono/ansible-mac/dispatches --input -
 ```
 
 Nexus に新版があるのに PR が作られていないとき（通知の取りこぼしなど）は、同じ方法で最新の版を指定して dispatch すると、その版への追従 PR が作られます。この場合の PR は閉じずに、レビューしてマージします。
@@ -204,7 +204,7 @@ Pleiades は `release` と `buildDate` を指定します。値は、Nexus の�
 
 ```bash
 echo '{"event_type":"update-pleiades","client_payload":{"release":"<リリース>","buildDate":"<build date>","jenkins":"manual"}}' \
-  | gh api repos/YukiOno-1015/ansible-mac/dispatches --input -
+  | gh api repos/jqit-yukiono/ansible-mac/dispatches --input -
 ```
 
 ## 5. 変更の進め方

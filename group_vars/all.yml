@@ -109,13 +109,13 @@ mas_apps_common:
 mas_apps: "{{ mas_apps_common }}"
 
 # Git configuration（共通）
-git_user_name: "YukiOno-1015"
+git_user_name: "jqit-yukiono"
 git_user_email: "sk4869pw4869@gmail.com"
 git_default_branch: main
 git_core_editor: vim
 
 # dotfiles configuration（共通）
-dotfiles_repo: "https://github.com/YukiOno-1015/dotfiles.git"
+dotfiles_repo: "https://github.com/jqit-yukiono/dotfiles.git"
 dotfiles_dest: "{{ ansible_env.HOME }}/dotfiles"
 dotfiles_version: main
 dotfiles_update: true

@@ -14,7 +14,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCS_DIR="${DOCS_DIR:-${SCRIPT_DIR}/../docs}"
-REPOSITORY="${GITHUB_REPOSITORY:-YukiOno-1015/ansible-mac}"
+REPOSITORY="${GITHUB_REPOSITORY:-jqit-yukiono/ansible-mac}"
 REF="${DOCS_REF:-main}"
 REPO_URL="https://github.com/${REPOSITORY}"
 

@@ -21,8 +21,8 @@ Homebrew・App Store アプリ・macOS 設定・Git 設定・dotfiles・Claude C
 1. リポジトリをクローンします。
 
    ```bash
-   git clone git@github.com:YukiOno-1015/ansible-mac.git     # SSH
-   # git clone https://github.com/YukiOno-1015/ansible-mac.git   # HTTPS
+   git clone git@github.com:jqit-yukiono/ansible-mac.git     # SSH
+   # git clone https://github.com/jqit-yukiono/ansible-mac.git   # HTTPS
    cd ansible-mac
    ```
 
@@ -172,4 +172,4 @@ GitHub Actions（`pull_request` と `main` への push）で、次のチェッ�
 | [docs/design-decisions.md](docs/design-decisions.md) | 設計判断記録 |
 | [docs/known-issues.md](docs/known-issues.md) | 既知の課題と改善候補 |
 
-全体の索引は [docs/README.md](docs/README.md) です。同じ内容は [GitHub Wiki](https://github.com/YukiOno-1015/ansible-mac/wiki) でも読めます（`docs/` の自動ミラー。編集は `docs/` に対して行ってください）。
+全体の索引は [docs/README.md](docs/README.md) です。同じ内容は [GitHub Wiki](https://github.com/jqit-yukiono/ansible-mac/wiki) でも読めます（`docs/` の自動ミラー。編集は `docs/` に対して行ってください）。

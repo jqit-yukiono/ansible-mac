@@ -271,7 +271,7 @@ ls -d "${TMPDIR%/}"/ansible.*askpass       # 実行後は存在しない
 
 ### TC-24 版数の自動追従
 
-`RELEASE_PAT` が登録されていること（`gh secret list --repo YukiOno-1015/ansible-mac`）を確認して、[operations.md](operations.md) の 4.3 のテスト用 dispatch を送ります。
+`RELEASE_PAT` が登録されていること（`gh secret list --repo jqit-yukiono/ansible-mac`）を確認して、[operations.md](operations.md) の 4.3 のテスト用 dispatch を送ります。
 
 期待: `auto/filezilla-<version>` のブランチと PR が作られ、変更が `group_vars/all.yml` の 1 行だけである。PR の CI が起動する。確認後は PR を閉じる。
 実施の記録は、6 章を参照してください。

@@ -123,7 +123,7 @@ ansible-playbook site.yml --tags mcp           # make ターゲットがない�
 | `git_user_name` / `git_user_email` | 値は YAML を参照 | git | `user.name` / `user.email` |
 | `git_default_branch` | `main` | git | `init.defaultBranch` |
 | `git_core_editor` | `vim` | git | `core.editor` |
-| `dotfiles_repo` | `https://github.com/YukiOno-1015/dotfiles.git` | dotfiles | dotfiles リポジトリ |
+| `dotfiles_repo` | `https://github.com/jqit-yukiono/dotfiles.git` | dotfiles | dotfiles リポジトリ |
 | `dotfiles_dest` | `~/dotfiles` | dotfiles | clone 先 |
 | `dotfiles_version` | `main` | dotfiles | ブランチ / タグ / コミット |
 | `dotfiles_update` | `true` | dotfiles | 既存 clone を更新する |
@@ -377,7 +377,7 @@ flowchart TD
 | 項目 | 内容 |
 | --- | --- |
 | 実行 | `scripts/sync-wiki.sh <wiki-dir>`（`<wiki-dir>` は `<repo>.wiki.git` の clone） |
-| 環境変数 | `DOCS_DIR`（既定 `docs/`）、`GITHUB_REPOSITORY`（既定 `YukiOno-1015/ansible-mac`。URL の生成に使う）、`DOCS_REF`（既定 `main`。リポジトリ上のリンク先の ref） |
+| 環境変数 | `DOCS_DIR`（既定 `docs/`）、`GITHUB_REPOSITORY`（既定 `jqit-yukiono/ansible-mac`。URL の生成に使う）、`DOCS_REF`（既定 `main`。リポジトリ上のリンク先の ref） |
 | 定数 | `PAGE_ORDER`（サイドバーの順序。載っていない文書は、末尾にアルファベット順）、`MARKER_ID` と `MARKER`（生成ページの目印） |
 | 出力 | `Home.md`（`docs/README.md` から）、`<name>.md`（`docs/<name>.md` から）、`_Sidebar.md`、`_Footer.md`。いずれも先頭にマーカーの HTML コメントを付ける |
 | 異常終了 | 引数がない、`<wiki-dir>` がない、`docs/README.md` がない、リンク検査に失敗のいずれかで終了コード 1 |
