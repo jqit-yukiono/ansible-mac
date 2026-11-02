@@ -1,0 +1,22 @@
+roles/mcp/defaults/main.yml
+  s_11a488bc34dcd5::t_8caeac9ad6e8ef 25-26
+  s_11a488bc34dcd5::t_b5b051b0a5e483 103-104
+.github/workflows/ansible-mac-update-mac-app-version.yml
+  s_11a488bc34dcd5::t_15e592112df7d8 107-108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d86beeaa08fc9ee79e1cf31ea6bc28e74a24aa29",
+  "prompts": {},
+  "sessions": {
+    "s_11a488bc34dcd5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "63804f42-1fa0-4fef-ade7-9a8737fd7d5e",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "jqit-yukiono <jqit.yuki.ono@gmail.com>"
+    }
+  }
+}
