@@ -85,7 +85,8 @@
 | 事象 | `main` にブランチ保護も ruleset もなく、CI は必須チェックになっていない（2026-10-24 時点） |
 | 影響 | CI が失敗していても、マージできてしまう。直接 push も防げない |
 | 経緯 | `ansible-lint` の `yaml[line-length]` 3 件で CI が赤い状態が続いていたため、必須にできなかった。PR #16（2026-11-03）で解消し、CI は緑になった |
-| 対応案 | `main` を PR 必須にし、`Format, Indent, Static Check` と `Validate Wiki pages` を必須チェックにする |
+| 対応案 | `main` を PR 必須にし、`Format, Indent, Static Check` を必須チェックにする。設定には admin 権限が要る（2026-11-03 時点で、作業に使っているアカウントは `push` まで） |
+| 注意 | `Validate Wiki pages` は `docs/` などを変えた PR でしか動かないため、必須にすると他の PR がマージできなくなる。必須にしない |
 
 ## KI-06 `mas get` が常に changed になり、sudo 要求を握りつぶす
 
