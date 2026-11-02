@@ -442,8 +442,13 @@ Jenkins には伝わりません。`RELEASE_PAT` が未登録の間は毎回失�
 
 ### 8.3 品質ゲートの現状
 
-`main` にブランチ保護と ruleset はなく、CI は必須チェックになっていません（2026-10-24 時点。[known-issues.md](known-issues.md) の KI-05）。
-CI（`yamllint`、`shfmt`、`ansible-lint`、構文チェック）は、すべて通っています（2026-11-03 時点）。
+`main` にはブランチ保護があります（2026-11-03 に設定）。
+
+- PR を必須にします（承認数は 0）。force push と削除は禁止します
+- 必須チェックは `Format, Indent, Static Check`（`yamllint`、`shfmt`、`ansible-lint`、構文チェック）だけです。`Validate Wiki pages` は `docs/` などを変えた PR でしか動かないため、必須にしません
+- 管理者には強制しません。緊急時は管理者が回避できます
+
+CI は、すべて通っています（2026-11-03 時点）。
 
 ### 8.4 Wiki ミラー
 
