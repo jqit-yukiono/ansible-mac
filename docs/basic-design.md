@@ -393,11 +393,15 @@ dotfiles の `.zprofile` は、展開後の新しいシェルで同じ設定を�
 | --- | --- | --- | --- |
 | 1 | YAML の書式・インデント | `yamllint .` | `.yamllint`（`extends: default`、行長 120 は warning） |
 | 2 | シェルの書式 | `shfmt -d -i 2 -ci` を追跡中の `*.sh` に対して実行 | インデント 2、`case` のインデントあり |
-| 3 | Ansible の静的検査 | `ansible-lint` | `.ansible-lint`（`profile: basic`、`ignore-errors` と `risky-shell-pipe` を除外） |
-| 4 | Playbook の構文 | `ansible-playbook site.yml --syntax-check` | `requirements.yml` の collection を導入して実行 |
+| 3 | シェルの静的検査 | `shellcheck` を追跡中の `*.sh` に対して実行 | 既定の設定（抑止は該当箇所に理由つきのコメントで書く） |
+| 4 | Markdown の静的検査 | `markdownlint-cli2 README.md "docs/*.md"` | `.markdownlint-cli2.jsonc`（行長 `MD013` は無効、HTML は表の中の `<br>` だけ許可） |
+| 5 | Ansible の静的検査 | `ansible-lint` | `.ansible-lint`（`profile: basic`、`ignore-errors` と `risky-shell-pipe` を除外） |
+| 6 | Playbook の構文 | `ansible-playbook site.yml --syntax-check` | `requirements.yml` の collection を導入して実行 |
 
 macOS のランナーは使わないため、実機での適用（`defaults`、Homebrew、MAS）は CI では検証されません
 （[testing.md](testing.md) を参照）。
+
+`hadolint`（Dockerfile）と `bandit`（Python）は、このリポジトリに対象のファイルがないため導入していません。対象のファイルを追加するときに、CI へ足します。
 
 ### 8.2 版数の自動追従
 
@@ -445,7 +449,7 @@ Jenkins には伝わりません。`RELEASE_PAT` が未登録の間は毎回失�
 `main` にはブランチ保護があります（2026-11-03 に設定）。
 
 - PR を必須にします（承認数は 0）。force push と削除は禁止します
-- 必須チェックは `Format, Indent, Static Check`（`yamllint`、`shfmt`、`ansible-lint`、構文チェック）だけです。`Validate Wiki pages` は `docs/` などを変えた PR でしか動かないため、必須にしません
+- 必須チェックは `Format, Indent, Static Check`（`yamllint`、`shfmt`、`shellcheck`、`markdownlint-cli2`、`ansible-lint`、構文チェック）だけです。`Validate Wiki pages` は `docs/` などを変えた PR でしか動かないため、必須にしません
 - 管理者には強制しません。緊急時は管理者が回避できます
 
 CI は、すべて通っています（2026-11-03 時点）。

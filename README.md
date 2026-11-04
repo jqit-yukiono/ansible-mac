@@ -150,6 +150,8 @@ GitHub Actions（`pull_request` と `main` への push）で、次のチェッ�
 | --- | --- |
 | `yamllint` | YAML のフォーマット・インデントチェック |
 | `shfmt` | Shell スクリプトのフォーマットチェック |
+| `shellcheck` | Shell スクリプトの静的チェック |
+| `markdownlint-cli2` | Markdown（`README.md` と `docs/`）の静的チェック |
 | `ansible-lint` | Ansible の静的チェック |
 | `ansible-playbook --syntax-check` | Playbook の構文チェック |
 

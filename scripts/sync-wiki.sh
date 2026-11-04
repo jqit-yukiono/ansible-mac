@@ -60,6 +60,7 @@ page_title() {
 
 # Rewrite relative links outside fenced code blocks into Wiki links.
 rewrite_links() {
+  # shellcheck disable=SC2016  # single quotes hold sed syntax (\1); only the quoted variables are meant to expand
   sed -E '/^```/,/^```/!{
     s|\]\(\.\./README\.md\)|](https://github.com/'"${REPOSITORY}/blob/${REF}"'/README.md)|g
     s|\]\(README\.md(#[^)]*)?\)|](Home\1)|g

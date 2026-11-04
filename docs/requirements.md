@@ -92,7 +92,7 @@
 | FR-18 | 対象を絞って部分的に実行できる | 必須 | タグ、`make <target>` | TC-22 |
 | FR-19 | 変更を加えずに実行内容を確認できる（ドライラン） | 推奨 | `make check-dev` / `make check-personal` | TC-05 |
 | FR-20 | pkg ベースの cask が必要とする `sudo` を、非対話の実行で通せる | 必須 | askpass ヘルパ | TC-23 |
-| FR-21 | 静的検査（書式・lint・構文）を PR と `main` への push で自動実行する | 必須 | `ci.yml` | TC-01 〜 TC-04 |
+| FR-21 | 静的検査（書式・lint・構文）を PR と `main` への push で自動実行する | 必須 | `ci.yml` | TC-01 〜 TC-04、TC-27、TC-28 |
 | FR-22 | Pleiades / FileZilla の新版を検知し、追従 PR を自動作成する | 推奨 | Jenkins Mirror Pipeline、更新ワークフロー | TC-24 |
 | FR-23 | `docs/` を GitHub Wiki へ一方向に反映する（正本は `docs/`）。PR ではリンクの検査だけを行う | 推奨 | `sync-wiki.yml`、`scripts/sync-wiki.sh` | TC-26 |
 

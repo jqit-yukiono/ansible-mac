@@ -254,7 +254,7 @@ ansible-playbook site.yml --tags mcp           # make ターゲットがない�
 
 設定値の詳細は [catalog.md](catalog.md) の「管理対象の設定」を参照してください。
 
-**ホスト名の生成**
+#### ホスト名の生成
 
 ```mermaid
 flowchart TD
@@ -286,7 +286,7 @@ flowchart TD
 # END ANSIBLE MANAGED: internal sk4869.info
 ```
 
-**変数**
+#### 変数
 
 | 変数 | 既定値 | 説明 |
 | --- | --- | --- |
@@ -366,7 +366,7 @@ flowchart TD
 | 関数 | `log`、`copy_file`（元がファイルのときだけコピー）、`copy_dir`（元がディレクトリのとき、**コピー先を削除してから**コピー） |
 | 異常終了 | `DOTFILES_DIR` が無いとき、メッセージを出して終了コード 1 |
 | 対象 | VS Code、Thunderbird（安全な設定ファイルのみ）、FileZilla、Eclipse / Pleiades の軽量な設定（[catalog.md](catalog.md) の 7 を参照） |
-| 書式 | `shfmt -d -i 2 -ci`（CI が検査）、`set -euo pipefail` |
+| 書式 | `shfmt -d -i 2 -ci`・`shellcheck`（CI が検査）、`set -euo pipefail` |
 
 コピー後は `~/dotfiles` で差分を確認し、秘密情報が無いことを見てからコミットします。
 
@@ -381,7 +381,7 @@ flowchart TD
 | 定数 | `PAGE_ORDER`（サイドバーの順序。載っていない文書は、末尾にアルファベット順）、`MARKER_ID` と `MARKER`（生成ページの目印） |
 | 出力 | `Home.md`（`docs/README.md` から）、`<name>.md`（`docs/<name>.md` から）、`_Sidebar.md`、`_Footer.md`。いずれも先頭にマーカーの HTML コメントを付ける |
 | 異常終了 | 引数がない、`<wiki-dir>` がない、`docs/README.md` がない、リンク検査に失敗のいずれかで終了コード 1 |
-| 書式 | `shfmt -d -i 2 -ci`（CI が検査）、`set -euo pipefail`。bash 4 以降の機能は使わず、`sed -E` / `awk` / `grep -E` は macOS と Linux で共通に動く書き方にする |
+| 書式 | `shfmt -d -i 2 -ci`・`shellcheck`（CI が検査）、`set -euo pipefail`。bash 4 以降の機能は使わず、`sed -E` / `awk` / `grep -E` は macOS と Linux で共通に動く書き方にする |
 
 処理の流れは次のとおりです。
 
@@ -417,8 +417,10 @@ Markdown リンクの宛先は、次のとおり変換します（`rewrite_links
 4. `ansible-galaxy collection install -r requirements.yml`
 5. `yamllint .`
 6. `shfmt -d -i 2 -ci $(git ls-files '*.sh')`（対象があるときだけ）
-7. `ansible-lint`
-8. `ansible-playbook site.yml --syntax-check`
+7. `git ls-files -z '*.sh' | xargs -0 -r shellcheck`（`shellcheck` は `ubuntu-latest` に入っているものを使う）
+8. `npx --yes markdownlint-cli2@0.18.1 README.md "docs/*.md"`（設定は `.markdownlint-cli2.jsonc`）
+9. `ansible-lint`
+10. `ansible-playbook site.yml --syntax-check`
 
 ### 6.2 `ansible-mac-update-mac-app-version.yml`
 
@@ -486,5 +488,5 @@ PR 本文には、イベント種別・概要・発火元の Jenkins（`client_p
 - タスク名は英語の命令形（`Install Homebrew packages`）、コメントは日本語で「なぜ」を書く
 - 変数名は role 名を接頭辞にする。共通セットは `*_common`、プロファイル差分は `*_<profile>_extra`
 - パスワードやトークンを扱うタスクには `no_log: true`
-- シェルスクリプトは `shfmt -i 2 -ci` の形式、`set -euo pipefail`
+- シェルスクリプトは `shfmt -i 2 -ci` の形式で `shellcheck` を通し、`set -euo pipefail` を付ける。`shellcheck` の抑止は、該当箇所の直前に理由つきの `# shellcheck disable=` で書く
 - コミットメッセージは `<type>: <日本語の説明>`（`feat` / `fix` / `chore` / `docs` / `refactor` など）
