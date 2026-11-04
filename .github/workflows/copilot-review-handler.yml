@@ -121,14 +121,18 @@ jobs:
           # の再レビューに委ねる（このゲートを通さず静かにスキップする）。
           # request-human 側（人手対応ラベル付与）は古いレビューでも有用な
           # 情報のため、この判定の対象外にする（eligible のみ見る）。
-          REVIEWED_SHA=$(printf '%s' "$BODY" | grep -oE '^<!-- reviewed-sha: [0-9a-f]{7,40} -->$' | head -1 | grep -oE '[0-9a-f]{7,40}' || true)
+          REVIEWED_SHA=$(printf '%s' "$BODY" \
+            | grep -oE '^<!-- reviewed-sha: [0-9a-f]{7,40} -->$' \
+            | head -1 \
+            | grep -oE '[0-9a-f]{7,40}' || true)
           SHA_MATCH=false
           if [ -n "$REVIEWED_SHA" ] && [ "$REVIEWED_SHA" = "$CURRENT_SHA" ]; then
             SHA_MATCH=true
           fi
           echo "sha_match=$SHA_MATCH" >> "$GITHUB_OUTPUT"
           echo "reviewed_sha=$REVIEWED_SHA" >> "$GITHUB_OUTPUT"
-          echo "eligible=$ELIGIBLE state=$STATE head_repo=$HEAD_REPO sha_match=$SHA_MATCH reviewed_sha=$REVIEWED_SHA current_sha=$CURRENT_SHA"
+          echo "eligible=$ELIGIBLE state=$STATE head_repo=$HEAD_REPO sha_match=$SHA_MATCH"
+          echo "reviewed_sha=$REVIEWED_SHA current_sha=$CURRENT_SHA"
 
   auto-merge:
     needs: triage
@@ -196,9 +200,12 @@ jobs:
           gh pr edit "${PR_NUMBER}" \
             --add-label needs-human-review \
             --repo "${{ github.repository }}"
+          NOTICE="⚠️ 最終判定は APPROVE ですが、Codex が REQUEST_CHANGES を返したため**自動マージを止めました**。"
+          NOTICE="${NOTICE}Codex の指摘を確認して、問題なければ手動でマージしてください。"
+          NOTICE="${NOTICE}修正を push すると再レビューされます。"
           gh pr comment "${PR_NUMBER}" \
             --repo "${{ github.repository }}" \
-            --body "⚠️ 最終判定は APPROVE ですが、Codex が REQUEST_CHANGES を返したため**自動マージを止めました**。Codex の指摘を確認して、問題なければ手動でマージしてください。修正を push すると再レビューされます。"
+            --body "${NOTICE}"
 
   request-human:
     needs: triage
