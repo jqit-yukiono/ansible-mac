@@ -32,6 +32,8 @@ CI と同じ検査をローカルで再現できます。
 | TC-27 | シェルの静的検査 | `shellcheck scripts/*.sh` | 指摘なし | 通る |
 | TC-28 | Markdown の静的検査 | `npx --yes markdownlint-cli2@0.18.1 README.md "docs/*.md"` | 違反なし | 通る |
 
+Jenkins の PR 自動レビュー（`ansible-mac-pr-review`）は、上の検査に加えて `yamllint --strict`、`actionlint`、gitleaks、opengrep を必須として実行します（詳細は README の「PR の自動レビュー」）。
+
 CI は TC-04 をプロファイルなしで実行します。ローカルでは両プロファイルで確認してください。
 
 ## 3. ドライラン（層 2）
