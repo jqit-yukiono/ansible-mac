@@ -153,7 +153,7 @@
 | 項目 | 内容 |
 | --- | --- |
 | GitHub Actions のバージョン | CI のログに「`actions/checkout@v4`・`actions/setup-go@v5`・`actions/setup-python@v5` は Node.js 20 を対象としており非推奨」という警告が出ている。更新する |
-| CI で使うツールの固定 | `shfmt` は `@latest`、`ansible` / `ansible-lint` / `yamllint` は版指定なし。更新で CI が突然赤くなりうる |
+| CI で使うツールの固定 | `shfmt` は `@latest`、`ansible` / `ansible-lint` / `yamllint` は版指定なし、`shellcheck` は `ubuntu-latest` に入っている版に従う（`markdownlint-cli2` は 0.18.1 に固定済み）。更新で CI が突然赤くなりうる。実際に Python の `3.x` が 3.15 に解決され、CI が落ちた |
 | `RELEASE_PAT` の権限 | ワークフローの前提は `repo` スコープの PAT。必要最小限の権限（このリポジトリに限定した PAT など）を検討する |
 | 版数追従の失敗の検知 | Jenkins は dispatch が GitHub に受理された時点で成功と見なし、受信側（Actions）の失敗を知らない。`RELEASE_PAT` の未登録で 4 回続けて失敗していた（2026-07-15 から 10-16）が、失敗しても Jenkins からは分からなかった。PAT が失効しても同じことが起きる。Actions の失敗通知の確認や、PAT の期限の記録を検討する |
 | MCP パッケージの固定 | `playwright` と `chrome-devtools` は `@latest`、他も版を固定していない |

@@ -29,6 +29,8 @@ CI と同じ検査をローカルで再現できます。
 | TC-02 | シェルの書式 | `shfmt -d -i 2 -ci scripts/import-app-settings.sh` | 差分なし | 通る |
 | TC-03 | Ansible の静的検査 | `ansible-lint` | 違反なし | 通る（PR #16 で `yaml[line-length]` 3 件を解消） |
 | TC-04 | Playbook の構文 | `ansible-playbook site.yml --syntax-check -e @vars/dev.yml`（`personal` も） | エラーなし | 通る |
+| TC-27 | シェルの静的検査 | `shellcheck scripts/*.sh` | 指摘なし | 通る |
+| TC-28 | Markdown の静的検査 | `npx --yes markdownlint-cli2@0.18.1 README.md "docs/*.md"` | 違反なし | 通る |
 
 Jenkins の PR 自動レビュー（`ansible-mac-pr-review`）は、上の検査に加えて `yamllint --strict`、`actionlint`、gitleaks、opengrep を必須として実行します（詳細は README の「PR の自動レビュー」）。
 
@@ -353,5 +355,7 @@ mkdir -p /tmp/wiki-check && scripts/sync-wiki.sh /tmp/wiki-check
 | PR #12・#13 の `ansible-lint` | 解消前の既知の 3 件で失敗。違反箇所は変わらず、新しい違反はない |
 | PR #16 の CI（1 回目） | **失敗**。`Install Ansible collections` で `AttributeError: module 'dataclasses' has no attribute '_is_type'`。`setup-python` の `3.x` が Python 3.15.1 に解決され、ansible-core が起動できない。`main` でも同じ |
 | PR #16 の CI（`python-version` を `3.13` に固定） | 成功。`yamllint`、`shfmt`、`ansible-lint`、構文チェックがすべて通った |
+| `shellcheck`・`markdownlint-cli2` の導入前の試行（`scripts/*.sh`、`README.md`、`docs/*.md`） | `shellcheck` は `sync-wiki.sh` の `rewrite_links` の SC2016 が 1 件（sed の式を単一引用符で組み立てる意図的な書き方）。理由つきのコメントで抑止した。`markdownlint-cli2` は、行長（`MD013`）を無効にすると、表の中の `<br>`（`MD033`）と、太字を見出しの代わりに使った 2 箇所（`MD036`）。前者は `<br>` だけ許可し、後者は見出しに直した |
+| `hadolint`・`bandit` | 対象のファイル（Dockerfile、Python）がないため導入していない |
 
 新規の Mac での通し実行（`make init` → `make dev` / `make personal`）は、この時点では実施していません。

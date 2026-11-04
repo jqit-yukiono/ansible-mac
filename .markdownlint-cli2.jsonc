@@ -1,0 +1,8 @@
+{
+  "config": {
+    // Prose is written one sentence per line, so a line-length limit does not apply.
+    "MD013": false,
+    // Table cells cannot hold line breaks in Markdown, so <br> is the only allowed HTML.
+    "MD033": { "allowed_elements": ["br"] }
+  }
+}
