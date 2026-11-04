@@ -47,6 +47,12 @@ jobs:
             shfmt -d -i 2 -ci ${files}
           fi
 
+      - name: Check shell scripts
+        run: git ls-files -z '*.sh' | xargs -0 -r shellcheck
+
+      - name: Check Markdown
+        run: npx --yes markdownlint-cli2@0.18.1 README.md "docs/*.md"
+
       - name: Run Ansible static checks
         run: ansible-lint
 

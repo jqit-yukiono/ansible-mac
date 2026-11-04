@@ -217,7 +217,9 @@ echo '{"event_type":"update-pleiades","client_payload":{"release":"<リリース
    ansible-playbook site.yml --syntax-check -e @vars/dev.yml
    ansible-playbook site.yml --syntax-check -e @vars/personal.yml
    ansible-lint                                   # 要インストール（brew install ansible-lint）
-   shfmt -d -i 2 -ci scripts/import-app-settings.sh
+   shfmt -d -i 2 -ci scripts/*.sh
+   shellcheck scripts/*.sh                        # 要インストール（brew install shellcheck）
+   npx --yes markdownlint-cli2@0.18.1 README.md "docs/*.md"
    ```
 
 3. コミットメッセージは `<type>: <日本語の説明>` にします（`feat` / `fix` / `chore` / `docs` / `refactor` / `test` / `style` / `perf`）
