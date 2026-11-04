@@ -1,0 +1,29 @@
+.github/workflows/ansible-mac-update-mac-app-version.yml
+  s_2b1b1e3802c115::t_4e4b5a05529a9a 38,123
+.github/workflows/ci.yml
+  s_2b1b1e3802c115::t_ee93772512fbfe 17,20,25,44
+.github/workflows/copilot-review-handler.yml
+  s_2b1b1e3802c115::t_aa116150a0fd15 1-228
+.github/workflows/sync-wiki.yml
+  s_2b1b1e3802c115::t_3dd604ce4f5a7f 40,60
+README.md
+  s_2b1b1e3802c115::t_7ed9d601335c19 161-180
+docs/testing.md
+  s_2b1b1e3802c115::t_3ffbaba1eaccff 35-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2f38e60f4f9bc1b2c42cf9f594e8108ffcfb6a22",
+  "prompts": {},
+  "sessions": {
+    "s_2b1b1e3802c115": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d927edb-94bc-4293-8f84-456717642ab8",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "jqit-yukiono <jqit.yuki.ono@gmail.com>"
+    }
+  }
+}
