@@ -30,6 +30,8 @@ CI と同じ検査をローカルで再現できます。
 | TC-03 | Ansible の静的検査 | `ansible-lint` | 違反なし | 通る（PR #16 で `yaml[line-length]` 3 件を解消） |
 | TC-04 | Playbook の構文 | `ansible-playbook site.yml --syntax-check -e @vars/dev.yml`（`personal` も） | エラーなし | 通る |
 
+Jenkins の PR 自動レビュー（`ansible-mac-pr-review`）は、上の検査に加えて `yamllint --strict`、`actionlint`、gitleaks、opengrep を必須として実行します（詳細は README の「PR の自動レビュー」）。
+
 CI は TC-04 をプロファイルなしで実行します。ローカルでは両プロファイルで確認してください。
 
 ## 3. ドライラン（層 2）

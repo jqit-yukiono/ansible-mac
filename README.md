@@ -156,6 +156,26 @@ GitHub Actions（`pull_request` と `main` への push）で、次のチェッ�
 別に、Pleiades / FileZilla の新版を `group_vars/all.yml` に反映する PR を自動作成するワークフローがあります
 （Jenkins の Mirror Pipeline から `repository_dispatch` を受信。Secrets の `RELEASE_PAT` が必要です。[運用手順書](docs/operations.md)）。
 
+## PR の自動レビュー
+
+PR を作ると、Jenkins（`GitHub/ansible-mac-pr-review`）が Copilot / Claude Code でレビューし、`VERDICT` 付きのコメントを投稿します。
+`VERDICT: APPROVE` なら `.github/workflows/copilot-review-handler.yml` が squash マージ（`--auto`）し、`REQUEST_CHANGES` なら `needs-human-review` ラベルを付けます。
+レビューの前に、次の検査をすべて必須として実行します。1 つでも失敗すると、`APPROVE` でも `REQUEST_CHANGES` になります。
+
+| 検査 | 内容 |
+| --- | --- |
+| gitleaks | PR が持ち込むコミットの secret scan |
+| `yamllint --strict` | 警告も失敗にする |
+| `actionlint` | GitHub Actions の workflow |
+| `shellcheck` | 重大度の下限なし（style まで） |
+| `shfmt -i 2 -ci` | Shell の書式 |
+| `markdownlint-cli2` | すべての Markdown |
+| `ansible-lint` | CI と同じ設定（`.ansible-lint`） |
+| `ansible-playbook --syntax-check` | CI と同じ |
+| opengrep | yaml / bash のルール。警告も失敗にする |
+
+ローカルで先に確かめるときは、`yamllint --strict .`、`shellcheck scripts/*.sh`、`actionlint` などを使います。
+
 また、`docs/` の変更は、`main` にマージすると GitHub Wiki へ自動で反映されます（`Sync docs to Wiki`。一方向で、正本は `docs/`）。
 `docs/` を含む PR では、`Validate Wiki pages` が、Wiki 用の変換とリンクを検査します。
 
