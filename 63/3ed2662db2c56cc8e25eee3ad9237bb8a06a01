@@ -1,0 +1,46 @@
+.markdownlint-cli2.jsonc
+  s_11a488bc34dcd5::t_d2382aaa434d1c 1-8
+docs/testing.md
+  s_11a488bc34dcd5::t_8209c3ca88c512 356-357
+  s_11a488bc34dcd5::t_4debb4d41d1f56 32-33
+docs/basic-design.md
+  s_11a488bc34dcd5::t_598a14504d045f 396-399,404
+  s_11a488bc34dcd5::t_d487a6ea69d25f 452
+  s_11a488bc34dcd5::t_91f5d5b5e88a72 405
+scripts/sync-wiki.sh
+  s_11a488bc34dcd5::t_5957397c7275d4 63
+docs/operations.md
+  s_11a488bc34dcd5::t_2fc0916229c450 220-222
+docs/requirements.md
+  s_11a488bc34dcd5::t_626d65c1e6dde3 95
+docs/known-issues.md
+  s_11a488bc34dcd5::t_e57438a6a9f522 156
+.github/workflows/ci.yml
+  s_11a488bc34dcd5::t_dedb9bd572c518 51
+  s_11a488bc34dcd5::t_59766e85ab03ee 50,52-55
+README.md
+  s_11a488bc34dcd5::t_c52982b9a8d691 153-154
+docs/detailed-design.md
+  s_11a488bc34dcd5::t_2cd7614343cab8 289
+  s_11a488bc34dcd5::t_7207030683173f 257
+  s_11a488bc34dcd5::t_dfbd7b4c879edc 369
+  s_11a488bc34dcd5::t_eaa8f3981e142a 384
+  s_11a488bc34dcd5::t_d47921d232812e 491
+  s_11a488bc34dcd5::t_40c518babf1455 420-423
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "633ed2662db2c56cc8e25eee3ad9237bb8a06a01",
+  "prompts": {},
+  "sessions": {
+    "s_11a488bc34dcd5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "63804f42-1fa0-4fef-ade7-9a8737fd7d5e",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "jqit-yukiono <jqit.yuki.ono@gmail.com>"
+    }
+  }
+}
