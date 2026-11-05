@@ -260,7 +260,7 @@ homebrew_packages_dev_extra: [ ... ]     # dev だけの差分
 | swiftlint / Pleiades の取得 | ✅ | ❌ |
 | Xcode / TestFlight / Developer / PL2303Serial | ✅ | ❌ |
 | npm / uv のグローバルツール | ✅ | ❌ |
-| Thunderbird / Webex | ❌ | ✅ |
+| Webex | ❌ | ✅ |
 | Kindle / LINE | ❌ | ✅ |
 | ホスト名の用途名 | `DEV` | `OA` |
 

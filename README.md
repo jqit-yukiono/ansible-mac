@@ -98,7 +98,7 @@ Homebrew・App Store アプリ・macOS 設定・Git 設定・dotfiles・Claude C
 | swiftlint / Pleiades | ✅ | ❌ |
 | App Store の開発系（Xcode / TestFlight / Developer） | ✅ | ❌ |
 | npm / uv のグローバルツール | ✅ | ❌ |
-| コミュニケーション（Webex / Thunderbird） | ❌ | ✅ |
+| コミュニケーション（Webex） | ❌ | ✅ |
 | エンタメ（Kindle / LINE） | ❌ | ✅ |
 | ホスト名の用途名 | `DEV` | `OA` |
 

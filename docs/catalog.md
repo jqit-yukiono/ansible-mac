@@ -16,7 +16,7 @@ ansible-mac が導入・管理する対象の一覧です。
 | 種別 | 共通のみ（プロファイル未指定） | `dev` | `personal` |
 | --- | --- | --- | --- |
 | Homebrew formula | 21 | 38（共通 21 + 追加 17） | 21（追加なし） |
-| Homebrew cask | 24 | 28（共通 24 + 追加 4） | 27（共通 24 + 追加 3） |
+| Homebrew cask | 25 | 29（共通 25 + 追加 4） | 27（共通 25 + 追加 2） |
 | Mac App Store アプリ | 4 | 8（共通 4 + 追加 4） | 6（共通 4 + 追加 2） |
 | Xcode 依存 formula | 0 | 1 | 0 |
 | Pleiades の取得 | しない | する | しない |
@@ -113,7 +113,7 @@ ansible-mac が導入・管理する対象の一覧です。
 登録パスは `<brew --prefix>/opt/<formula>/libexec/openjdk.jdk/Contents/Home` です。
 シェルで `jenv` を有効化する設定は dotfiles 側にあります。
 
-### 1.6 cask（共通 24）
+### 1.6 cask（共通 25）
 
 `homebrew_casks_common` です。
 
@@ -128,6 +128,7 @@ ansible-mac が導入・管理する対象の一覧です。
 | | `microsoft-outlook` / `microsoft-onenote` / `microsoft-teams` | メール / ノート / 会議 |
 | | `onedrive` | クラウドストレージ |
 | コミュニケーション | `discord` / `slack` | チャット |
+| | `thunderbird` | メールクライアント |
 | AI アシスタント | `claude` | Claude デスクトップ（GUI） |
 | | `claude-code` | Claude Code（CLI）。`mcp` role が `claude` コマンドを使う |
 | | `chatgpt` | ChatGPT デスクトップ（GUI） |
@@ -144,8 +145,7 @@ ansible-mac が導入・管理する対象の一覧です。
 | | `docker-desktop` | Docker Desktop |
 | | `postman` | API クライアント |
 | | `sourcetree` | Git GUI クライアント |
-| `personal`（3） | `thunderbird` | メールクライアント |
-| | `webex` | ビデオ会議 |
+| `personal`（2） | `webex` | ビデオ会議 |
 | | `webex-meetings` | ビデオ会議 |
 
 pkg ベースの cask（Microsoft Office、`docker-desktop`、`webex-meetings` など）は、インストール中に

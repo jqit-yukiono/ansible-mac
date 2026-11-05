@@ -73,6 +73,7 @@ homebrew_casks_common:
   # コミュニケーション（dev / personal 共通）
   - discord
   - slack
+  - thunderbird
 
   # AI アシスタント（GUI + CLI、全環境共通）
   - claude          # Claude デスクトップ（GUI）
