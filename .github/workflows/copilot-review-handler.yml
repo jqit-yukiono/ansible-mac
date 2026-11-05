@@ -27,28 +27,29 @@ name: Copilot レビュー後の自動マージ
 "on":
   issue_comment:
     types: [created]
+  # 自動マージを予約したあとに追加の push があったら、予約を外す（cancel-auto-merge）。
+  pull_request:
+    types: [synchronize]
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 concurrency:
-  group: copilot-handler-pr-${{ github.event.issue.number }}
+  group: copilot-handler-pr-${{ github.event.issue.number || github.event.pull_request.number }}
   cancel-in-progress: false
-
-env:
-  # Jenkins が投稿するコメントの目印。これと投稿者が一致したものだけ扱う。
-  COMMENT_MARKER: "## AI統合レビュー (ansible-mac)"
 
 jobs:
   triage:
-    # 本文の先頭がマーカー、かつ Jenkins ボットの投稿だけを対象にする。
+    # 本文の先頭がマーカー、かつ Jenkins ボットの投稿だけを対象にする
+    # （マーカー文字列は job レベルの if では env を使えないため直書き）。
+    # pull_request イベントでは github.event.issue が無いので、このジョブは動かない。
     if: |
       github.event.issue.pull_request != null &&
       startsWith(github.event.comment.body, '## AI統合レビュー (ansible-mac)') &&
       github.event.comment.user.login == vars.JENKINS_BOT_USERNAME
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
       verdict: ${{ steps.parse.outputs.verdict }}
       eligible: ${{ steps.gate.outputs.eligible }}
@@ -134,6 +135,25 @@ jobs:
           echo "eligible=$ELIGIBLE state=$STATE head_repo=$HEAD_REPO sha_match=$SHA_MATCH"
           echo "reviewed_sha=$REVIEWED_SHA current_sha=$CURRENT_SHA"
 
+  # 自動マージを予約したあとに追加の push があると、GitHub は予約を残したまま
+  # 必須チェックが通れば未レビューの head をマージしてしまう。push のたびに
+  # 予約を外し、新しい head のレビューが APPROVE になって初めて再予約させる。
+  cancel-auto-merge:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: 自動マージの予約を外す
+        env:
+          # 予約と同じ PAT で外す（GITHUB_TOKEN は PAT が付けた予約を外せないことがある）。
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh pr merge "${PR_NUMBER}" --disable-auto --repo "${{ github.repository }}" || true
+          echo "PR #${PR_NUMBER}: 追加の push があったので、自動マージの予約を外した（無ければ何もしない）"
+
   auto-merge:
     needs: triage
     if: |
@@ -188,6 +208,7 @@ jobs:
       - name: needs-human-review ラベル付与 + 要確認コメント
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT_TOKEN: ${{ secrets.RELEASE_PAT }}
           PR_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -euo pipefail
@@ -200,6 +221,9 @@ jobs:
           gh pr edit "${PR_NUMBER}" \
             --add-label needs-human-review \
             --repo "${{ github.repository }}"
+          # 以前の APPROVE で予約済みの自動マージがあれば外す。
+          GH_TOKEN="${PAT_TOKEN:-$GH_TOKEN}" gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" || true
           NOTICE="⚠️ 最終判定は APPROVE ですが、Codex が REQUEST_CHANGES を返したため**自動マージを止めました**。"
           NOTICE="${NOTICE}Codex の指摘を確認して、問題なければ手動でマージしてください。"
           NOTICE="${NOTICE}修正を push すると再レビューされます。"
@@ -217,6 +241,7 @@ jobs:
       - name: needs-human-review ラベル付与 + 人手依頼コメント
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT_TOKEN: ${{ secrets.RELEASE_PAT }}
           PR_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -euo pipefail
@@ -230,6 +255,9 @@ jobs:
           gh pr edit "${PR_NUMBER}" \
             --add-label needs-human-review \
             --repo "${{ github.repository }}"
+          # 以前の APPROVE で予約済みの自動マージがあれば外す。
+          GH_TOKEN="${PAT_TOKEN:-$GH_TOKEN}" gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" || true
           gh pr comment "${PR_NUMBER}" \
             --repo "${{ github.repository }}" \
             --body "⚠️ Copilot が REQUEST_CHANGES を返しました。指摘を確認し、人手で修正してください（このリポジトリでは自動修正は行いません）。"
