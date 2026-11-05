@@ -170,6 +170,10 @@ jobs:
       needs.triage.outputs.sha_match == 'true' &&
       needs.triage.outputs.codex_hold != 'true'
     runs-on: ubuntu-latest
+    permissions:
+      # RELEASE_PAT が無いときの GITHUB_TOKEN でも gh pr merge --auto が通るように。
+      contents: write
+      pull-requests: write
     steps:
       - name: squash マージ + head ブランチ削除
         env:
@@ -259,6 +263,11 @@ jobs:
       needs.triage.outputs.eligible == 'true' &&
       needs.triage.outputs.verdict == 'REQUEST_CHANGES'
     runs-on: ubuntu-latest
+    permissions:
+      # ラベル・コメントと、予約を外す gh pr merge --disable-auto に使う。
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: needs-human-review ラベル付与 + 人手依頼コメント
         env:
