@@ -1,0 +1,313 @@
+# Jenkins から投稿された統合レビューコメント（Copilot CLI / Claude Code CLI
+# 両方の指摘を1本にまとめたもの）を受けて
+#   - VERDICT: APPROVE          → squash マージ + ブランチ削除
+#   - VERDICT: REQUEST_CHANGES  → needs-human-review ラベル付与 + 通知（人手対応）
+# する GitHub Actions ワークフロー。
+#
+# ansible-mac は git-flow を使わない単純な main ブランチ運用のため、
+# minewatch-copilot-review-handler.yml にある release/hotfix 向けの main
+# 除外分岐（release-merge-notice ジョブ）は持たない。base ブランチが main
+# であっても VERDICT: APPROVE ならそのまま自動マージする。
+# ansible-mac には main のブランチ保護（必須チェック: Format, Indent, Static Check）が
+# あるため、マージは --auto で、チェックが通ってから行われる。
+#
+# **Claude による自動修正はしない**（意図的にループを作らない、他パイプラインと同じ方針）。
+#
+# 配置先: jqit-yukiono/ansible-mac リポジトリの
+#   .github/workflows/copilot-review-handler.yml
+# 本ファイルは jenkins-cli 側の参照コピー（templates）。
+#
+# 必要な repository variables / secrets:
+#   vars.JENKINS_BOT_USERNAME : Jenkins がコメント投稿に使う PAT 所有者の GitHub username
+#   secrets.RELEASE_PAT       : squash マージ用 PAT（GITHUB_TOKEN では
+#                               ブランチ保護を越えられない場合に使う）
+---
+name: Copilot レビュー後の自動マージ
+
+"on":
+  issue_comment:
+    types: [created]
+  # 自動マージを予約したあとに追加の push があったら、予約を外す（cancel-auto-merge）。
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: copilot-handler-${{ github.event.comment.id || format('sync-{0}', github.event.pull_request.number) }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    # 本文の先頭がマーカー、かつ Jenkins ボットの投稿だけを対象にする
+    # （マーカー文字列は job レベルの if では env を使えないため直書き）。
+    # pull_request イベントでは github.event.issue が無いので、このジョブは動かない。
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request != null &&
+      startsWith(github.event.comment.body, '## AI統合レビュー (ansible-mac)') &&
+      github.event.comment.user.login == vars.JENKINS_BOT_USERNAME
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      verdict: ${{ steps.parse.outputs.verdict }}
+      eligible: ${{ steps.gate.outputs.eligible }}
+      sha_match: ${{ steps.gate.outputs.sha_match }}
+      reviewed_sha: ${{ steps.gate.outputs.reviewed_sha }}
+      codex_hold: ${{ steps.hold.outputs.hold }}
+    steps:
+      - name: コメントから VERDICT を抽出（行頭完全一致）
+        id: parse
+        env:
+          BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          # 行頭完全一致だけを拾う。本文中に "VERDICT: APPROVE" を含む文章が
+          # あっても誤爆しないよう、^...$ で縛る。複数あれば最後を採る。
+          VERDICT=$(printf '%s' "$BODY" \
+            | tr -d '\r' \
+            | { grep -oE '^VERDICT: (APPROVE|REQUEST_CHANGES)$' || true; } \
+            | tail -1 \
+            | awk '{print $2}' || true)
+          echo "verdict=${VERDICT:-UNKNOWN}" >> "$GITHUB_OUTPUT"
+          echo "VERDICT: ${VERDICT:-UNKNOWN}"
+
+      - name: コメントから codex-hold マーカーを検出（行頭完全一致）
+        id: hold
+        env:
+          BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          # Codex だけが REQUEST_CHANGES のとき、Jenkins が最終判定を変えずに
+          # "<!-- codex-hold: true -->" を入れる。あれば自動マージだけ止めて
+          # 人に回す。マーカーは「止める」方向にしか働かないので、PR タイトル
+          # 等から偽装されても自動マージが止まるだけで害はない（fail-safe）。
+          HOLD=false
+          # grep -q は一致で先に終わり、上流が SIGPIPE で落ちて pipefail が偽に
+          # しうる。一度変数に取ってから here-string で渡し、最後まで読ませる。
+          NORMALIZED=$(printf '%s' "$BODY" | tr -d '\r')
+          if grep -qxF '<!-- codex-hold: true -->' <<<"$NORMALIZED"; then
+            HOLD=true
+          fi
+          echo "hold=$HOLD" >> "$GITHUB_OUTPUT"
+          echo "codex_hold: $HOLD"
+
+      - name: PR メタデータ取得 + ゲート判定
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          PR_JSON=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}")
+          HEAD_REPO=$(printf '%s' "$PR_JSON" | jq -r '.head.repo.full_name // ""')
+          STATE=$(printf '%s' "$PR_JSON" | jq -r '.state')
+          CURRENT_SHA=$(printf '%s' "$PR_JSON" | jq -r '.head.sha')
+
+          # fork からの PR は自動マージしない（信頼できない差分をマージ
+          # 権限で扱わせない）。同一リポジトリの open PR だけを対象にする。
+          ELIGIBLE=false
+          if [ "$STATE" = "open" ] && [ "$HEAD_REPO" = "${{ github.repository }}" ]; then
+            ELIGIBLE=true
+          fi
+          echo "eligible=$ELIGIBLE" >> "$GITHUB_OUTPUT"
+
+          # コメント本文の "<!-- reviewed-sha: <sha> -->"
+          # （ansible-mac-pr-review.groovy がマーカー行の直後・PR タイトル
+          # より前に埋め込む専用の機械可読フィールド）からレビュー対象
+          # コミットを抽出し、現在の PR head と一致するかを見る。
+          # fetchDiffForDualReview() の取得後チェックからこのコメント投稿
+          # までの間にも push が入りうるため、自動マージは reviewed SHA ==
+          # 現在の head の場合だけに限定する。不一致なら新しい push が
+          # あったということなので、その push が起こす次の Jenkins ビルド
+          # の再レビューに委ねる（このゲートを通さず静かにスキップする）。
+          # request-human 側（人手対応ラベル付与）は古いレビューでも有用な
+          # 情報のため、この判定の対象外にする（eligible のみ見る）。
+          REVIEWED_SHA=$(printf '%s' "$BODY" \
+            | tr -d '\r' \
+            | grep -oE '^<!-- reviewed-sha: [0-9a-f]{7,40} -->$' \
+            | head -1 \
+            | grep -oE '[0-9a-f]{7,40}' || true)
+          SHA_MATCH=false
+          if [ -n "$REVIEWED_SHA" ] && [ "$REVIEWED_SHA" = "$CURRENT_SHA" ]; then
+            SHA_MATCH=true
+          fi
+          echo "sha_match=$SHA_MATCH" >> "$GITHUB_OUTPUT"
+          echo "reviewed_sha=$REVIEWED_SHA" >> "$GITHUB_OUTPUT"
+          echo "eligible=$ELIGIBLE state=$STATE head_repo=$HEAD_REPO sha_match=$SHA_MATCH"
+          echo "reviewed_sha=$REVIEWED_SHA current_sha=$CURRENT_SHA"
+
+  # 自動マージを予約したあとに追加の push があると、GitHub は予約を残したまま
+  # 必須チェックが通れば未レビューの head をマージしてしまう。push のたびに
+  # 予約を外し、新しい head のレビューが APPROVE になって初めて再予約させる。
+  cancel-auto-merge:
+    # フォーク PR には自動マージの予約が無く、権限も足りないので対象外にする。
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      # 自動マージの予約を外す GraphQL(disablePullRequestAutoMerge)は contents: write が要る。
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 自動マージの予約を外す
+        env:
+          # 予約と同じ PAT で外す（GITHUB_TOKEN は PAT が付けた予約を外せないことがある）。
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # 予約が無くても成功する(冪等)。失敗は権限不足や API 障害なので、見えるようにする。
+          if ! OUT=$(gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" 2>&1); then
+            echo "::error::自動マージの予約を外せなかった: $OUT"
+            exit 1
+          fi
+          echo "PR #${PR_NUMBER}: 追加の push があったので、自動マージの予約を外した（無ければ何もしない）"
+
+  auto-merge:
+    needs: triage
+    if: |
+      needs.triage.outputs.eligible == 'true' &&
+      needs.triage.outputs.verdict == 'APPROVE' &&
+      needs.triage.outputs.sha_match == 'true' &&
+      needs.triage.outputs.codex_hold != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      # RELEASE_PAT が無いときの GITHUB_TOKEN でも gh pr merge --auto が通るように。
+      contents: write
+      pull-requests: write
+    steps:
+      - name: squash マージ + head ブランチ削除
+        env:
+          # RELEASE_PAT が無ければ GITHUB_TOKEN にフォールバック。
+          # ブランチ保護の必須チェックを越えるには PAT が要ることがある。
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          REVIEWED_SHA: ${{ needs.triage.outputs.reviewed_sha }}
+        run: |
+          set -euo pipefail
+          # --auto: 必須 status check が全部 green になった時点でマージさせる。
+          # まだ緑でなくても本ステップは成功扱いになり、条件成立時に GitHub が
+          # squash マージ + ブランチ削除を実行する。
+          # --match-head-commit: triage ジョブでの sha_match 判定から
+          # このステップの実行までの間にも push が入る余地が残るため、
+          # 「auto-merge を予約する瞬間の PR head が REVIEWED_SHA と
+          # 一致する場合しか予約を許可しない」ことを GitHub API 側
+          # （enablePullRequestAutoMerge の expectedHeadOid 検証）に
+          # 保証させる。これは予約時点のレースを防ぐだけで、予約成功後
+          # に新しい push が入った場合に auto-merge が自動的に無効化
+          # される保証は無い（GitHub の auto-merge は新しいコミットに
+          # 対しても有効なまま、必須チェックが通ればマージされる）。
+          gh pr merge "${PR_NUMBER}" \
+            --squash \
+            --delete-branch \
+            --auto \
+            --match-head-commit "${REVIEWED_SHA}" \
+            --repo "${{ github.repository }}"
+          echo "✓ PR #${PR_NUMBER} の squash マージをキューに登録した（レビュー対象: ${REVIEWED_SHA}）"
+
+  # Codex だけが REQUEST_CHANGES で、最終判定は APPROVE のとき。自動マージを
+  # 止めて人に回す（黙って止めると「マージされない」で迷うので理由を残す）。
+  codex-hold-notice:
+    needs: triage
+    if: |
+      needs.triage.outputs.eligible == 'true' &&
+      needs.triage.outputs.verdict == 'APPROVE' &&
+      needs.triage.outputs.codex_hold == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      # 予約を外す gh pr merge --disable-auto が contents: write を要する。
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: needs-human-review ラベル付与 + 要確認コメント
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          # --repo が必須（このジョブは checkout しないため）。
+          gh label create needs-human-review \
+            --repo "${{ github.repository }}" \
+            -c E11D21 \
+            -d "Copilot が REQUEST_CHANGES。人手レビューと修正が必要" \
+            --force
+          gh pr edit "${PR_NUMBER}" \
+            --add-label needs-human-review \
+            --repo "${{ github.repository }}"
+          NOTICE="⚠️ 最終判定は APPROVE ですが、Codex が REQUEST_CHANGES を返したため**自動マージを止めました**。"
+          NOTICE="${NOTICE}Codex の指摘を確認して、問題なければ手動でマージしてください。"
+          NOTICE="${NOTICE}修正を push すると再レビューされます。"
+          gh pr comment "${PR_NUMBER}" \
+            --repo "${{ github.repository }}" \
+            --body "${NOTICE}"
+
+      - name: 以前の APPROVE で予約済みの自動マージを外す
+        # 通知(ラベル・コメント)のあとに実行し、通知が失敗しても必ず走らせる。
+        # 解除に失敗したらジョブを失敗にして気づけるようにする。
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          # 予約が無くても成功する(冪等)。失敗は権限不足や API 障害なので、見えるようにする。
+          if ! OUT=$(gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" 2>&1); then
+            echo "::error::自動マージの予約を外せなかった: $OUT"
+            exit 1
+          fi
+
+  request-human:
+    needs: triage
+    if: |
+      needs.triage.outputs.eligible == 'true' &&
+      needs.triage.outputs.verdict == 'REQUEST_CHANGES'
+    runs-on: ubuntu-latest
+    permissions:
+      # ラベル・コメントと、予約を外す gh pr merge --disable-auto に使う。
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: needs-human-review ラベル付与 + 人手依頼コメント
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          # ラベルが無ければ作る。--repo が必須（このジョブはリポジトリを
+          # checkout しないため）。--force で既存でも失敗しない。
+          gh label create needs-human-review \
+            --repo "${{ github.repository }}" \
+            -c E11D21 \
+            -d "Copilot が REQUEST_CHANGES。人手レビューと修正が必要" \
+            --force
+          gh pr edit "${PR_NUMBER}" \
+            --add-label needs-human-review \
+            --repo "${{ github.repository }}"
+          gh pr comment "${PR_NUMBER}" \
+            --repo "${{ github.repository }}" \
+            --body "⚠️ Copilot が REQUEST_CHANGES を返しました。指摘を確認し、人手で修正してください（このリポジトリでは自動修正は行いません）。"
+
+      - name: 以前の APPROVE で予約済みの自動マージを外す
+        # 通知(ラベル・コメント)のあとに実行し、通知が失敗しても必ず走らせる。
+        # 解除に失敗したらジョブを失敗にして気づけるようにする。
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          # 予約が無くても成功する(冪等)。失敗は権限不足や API 障害なので、見えるようにする。
+          if ! OUT=$(gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" 2>&1); then
+            echo "::error::自動マージの予約を外せなかった: $OUT"
+            exit 1
+          fi
