@@ -140,7 +140,10 @@ jobs:
   # 必須チェックが通れば未レビューの head をマージしてしまう。push のたびに
   # 予約を外し、新しい head のレビューが APPROVE になって初めて再予約させる。
   cancel-auto-merge:
-    if: github.event_name == 'pull_request'
+    # フォーク PR には自動マージの予約が無く、権限も足りないので対象外にする。
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       # 自動マージの予約を外す GraphQL(disablePullRequestAutoMerge)は contents: write が要る。
