@@ -35,7 +35,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: copilot-handler-pr-${{ github.event.issue.number || github.event.pull_request.number }}
+  group: copilot-handler-${{ github.event_name }}-${{ github.event.issue.number || github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
@@ -44,6 +44,7 @@ jobs:
     # （マーカー文字列は job レベルの if では env を使えないため直書き）。
     # pull_request イベントでは github.event.issue が無いので、このジョブは動かない。
     if: |
+      github.event_name == 'issue_comment' &&
       github.event.issue.pull_request != null &&
       startsWith(github.event.comment.body, '## AI統合レビュー (ansible-mac)') &&
       github.event.comment.user.login == vars.JENKINS_BOT_USERNAME
@@ -151,7 +152,16 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          gh pr merge "${PR_NUMBER}" --disable-auto --repo "${{ github.repository }}" || true
+          if ! OUT=$(gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" 2>&1); then
+            # 予約が無いだけなら正常。それ以外（権限不足・API 障害）は見えるようにする。
+            if printf '%s' "$OUT" | grep -qiE 'not enabled|already'; then
+              echo "自動マージの予約は無かった"
+            else
+              echo "::error::自動マージの予約を外せなかった: $OUT"
+              exit 1
+            fi
+          fi
           echo "PR #${PR_NUMBER}: 追加の push があったので、自動マージの予約を外した（無ければ何もしない）"
 
   auto-merge:
@@ -222,8 +232,15 @@ jobs:
             --add-label needs-human-review \
             --repo "${{ github.repository }}"
           # 以前の APPROVE で予約済みの自動マージがあれば外す。
-          GH_TOKEN="${PAT_TOKEN:-$GH_TOKEN}" gh pr merge "${PR_NUMBER}" --disable-auto \
-            --repo "${{ github.repository }}" || true
+          if ! OUT=$(GH_TOKEN="${PAT_TOKEN:-$GH_TOKEN}" gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" 2>&1); then
+            # 予約が無いだけなら正常。それ以外（権限不足・API 障害）は見えるようにする。
+            if printf '%s' "$OUT" | grep -qiE 'not enabled|already'; then
+              echo "自動マージの予約は無かった"
+            else
+              echo "::warning::自動マージの予約を外せなかった（人が確認する）: $OUT"
+            fi
+          fi
           NOTICE="⚠️ 最終判定は APPROVE ですが、Codex が REQUEST_CHANGES を返したため**自動マージを止めました**。"
           NOTICE="${NOTICE}Codex の指摘を確認して、問題なければ手動でマージしてください。"
           NOTICE="${NOTICE}修正を push すると再レビューされます。"
@@ -256,8 +273,15 @@ jobs:
             --add-label needs-human-review \
             --repo "${{ github.repository }}"
           # 以前の APPROVE で予約済みの自動マージがあれば外す。
-          GH_TOKEN="${PAT_TOKEN:-$GH_TOKEN}" gh pr merge "${PR_NUMBER}" --disable-auto \
-            --repo "${{ github.repository }}" || true
+          if ! OUT=$(GH_TOKEN="${PAT_TOKEN:-$GH_TOKEN}" gh pr merge "${PR_NUMBER}" --disable-auto \
+            --repo "${{ github.repository }}" 2>&1); then
+            # 予約が無いだけなら正常。それ以外（権限不足・API 障害）は見えるようにする。
+            if printf '%s' "$OUT" | grep -qiE 'not enabled|already'; then
+              echo "自動マージの予約は無かった"
+            else
+              echo "::warning::自動マージの予約を外せなかった（人が確認する）: $OUT"
+            fi
+          fi
           gh pr comment "${PR_NUMBER}" \
             --repo "${{ github.repository }}" \
             --body "⚠️ Copilot が REQUEST_CHANGES を返しました。指摘を確認し、人手で修正してください（このリポジトリでは自動修正は行いません）。"
