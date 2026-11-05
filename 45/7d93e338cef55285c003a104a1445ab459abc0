@@ -1,0 +1,30 @@
+vars/personal.yml
+  s_11a488bc34dcd5::t_75207c0e310fdf 14
+group_vars/all.yml
+  s_11a488bc34dcd5::t_97e2fedbd94255 76
+docs/basic-design.md
+  s_11a488bc34dcd5::t_91c8d91338fef5 263
+README.md
+  s_11a488bc34dcd5::t_4d23f218312642 101
+docs/catalog.md
+  s_11a488bc34dcd5::t_f23eb5239aa0cf 131
+  s_11a488bc34dcd5::t_0183fed3d53a2a 148
+  s_11a488bc34dcd5::t_87efde75a0f5f1 19
+  s_11a488bc34dcd5::t_b9a7161841d3e0 116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "457d93e338cef55285c003a104a1445ab459abc0",
+  "prompts": {},
+  "sessions": {
+    "s_11a488bc34dcd5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "63804f42-1fa0-4fef-ade7-9a8737fd7d5e",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "jqit-yukiono <jqit.yuki.ono@gmail.com>"
+    }
+  }
+}
